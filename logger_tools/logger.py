@@ -46,24 +46,43 @@ class Logger:
 
     def inspect_function(self, message, level="info"):
         stack = inspect.stack()
-        current_function = stack[1].function
-        calling_function = stack[2].function if len(stack) > 2 else 'Unknown'
-        filename = stack[1].filename.split('/')[-1] if len(stack) > 1 else 'Unknown'
-        log_message = f"[{datetime.now():%Y-%m-%d %H:%M:%S}] {filename}::{calling_function} → {current_function} | {message}"
-        logger = self.get_logger()
-        getattr(logger, level, logger.info)(log_message)
+        try:
+            current_function = stack[1].function
+            calling_function = stack[2].function
+            filename = stack[2].filename.split('/')[-1]
+        except IndexError:
+            current_function = calling_function = filename = 'Unknown'
+
+        log_message = (
+            f"[{datetime.now():%Y-%m-%d %H:%M:%S}] "
+            f"{filename}::{calling_function} → {current_function} | {message}"
+        )
+        getattr(self.get_logger(), level)(log_message)
 
 
-def log_function_call(level="info", logger_name=None):
+
+def log_function_call(_func=None, *, level="info", logger_name=None):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             logger = Logger()
+
             stack = inspect.stack()
-            calling_function = stack[1].function if len(stack) > 1 else 'Unknown'
-            filename = stack[1].filename.split('/')[-1] if len(stack) > 1 else 'Unknown'
-            log_message = f"[{datetime.now():%Y-%m-%d %H:%M:%S}] {filename}::{calling_function} → {func.__name__}"
-            getattr(logger.get_logger(), level, logger.get_logger().info)(log_message)
+            try:
+                current_function = stack[1].function
+                calling_function = stack[2].function
+                filename = stack[2].filename.split('/')[-1]
+            except IndexError:
+                current_function = calling_function = filename = 'Unknown'
+
+            log_message = (
+                f"[{datetime.now():%Y-%m-%d %H:%M:%S}] "
+                f"{filename}::{calling_function} → {current_function}"
+            )
+            getattr(logger.get_logger(), level)(log_message)
+
             return func(*args, **kwargs)
         return wrapper
-    return decorator
+
+    return decorator if _func is None else decorator(_func)
+
