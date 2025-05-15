@@ -15,7 +15,9 @@ class Logger:
     def get_logger(self):
         if Logger._logger is None:
             Logger._logger = logging.getLogger(self.logger_name)
-            Logger._logger.setLevel(getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO))
+            Logger._logger.setLevel(
+                getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
+            )
 
             log_path = settings.LOG_FILE_PATH
             log_dir = os.path.dirname(log_path)
@@ -45,20 +47,24 @@ class Logger:
         getattr(logger, level, logger.info)(log_message)
 
     def inspect_function(self, message, level="info"):
-        stack = inspect.stack()
-        try:
-            current_function = stack[1].function
-            calling_function = stack[2].function
-            filename = stack[2].filename.split('/')[-1]
-        except IndexError:
-            current_function = calling_function = filename = 'Unknown'
+        frame = inspect.currentframe()
+        current_frame = frame.f_back  # quem chamou inspect_function
+        caller_frame = (
+            current_frame.f_back if current_frame else None
+        )  # quem chamou a função
 
-        log_message = (
-            f"[{datetime.now():%Y-%m-%d %H:%M:%S}] "
-            f"{filename}::{calling_function} → {current_function} | {message}"
+        current_function = current_frame.f_code.co_name if current_frame else "Unknown"
+        calling_function = caller_frame.f_code.co_name if caller_frame else "Unknown"
+        filename = (
+            caller_frame.f_code.co_filename.split("/")[-1]
+            if caller_frame
+            else "Unknown"
         )
-        getattr(self.get_logger(), level)(log_message)
 
+        timestamp = f"{datetime.now():%Y-%m-%d %H:%M:%S}"
+        log_message = f"[{timestamp}] {filename}::{calling_function} → {current_function} | {message}"
+
+        getattr(self.get_logger(), level)(log_message)
 
 
 def log_function_call(_func=None, *, level="info", logger_name=None):
@@ -66,23 +72,29 @@ def log_function_call(_func=None, *, level="info", logger_name=None):
         @wraps(func)
         def wrapper(*args, **kwargs):
             logger = Logger()
+            frame = inspect.currentframe()
+            decorated_func_frame = frame.f_back
+            caller_frame = decorated_func_frame.f_back
 
-            stack = inspect.stack()
-            try:
-                current_function = stack[1].function
-                calling_function = stack[2].function
-                filename = stack[2].filename.split('/')[-1]
-            except IndexError:
-                current_function = calling_function = filename = 'Unknown'
-
-            log_message = (
-                f"[{datetime.now():%Y-%m-%d %H:%M:%S}] "
-                f"{filename}::{calling_function} → {current_function}"
+            current_function = (
+                decorated_func_frame.f_code.co_name
+                if decorated_func_frame
+                else "Unknown"
             )
+            calling_function = (
+                caller_frame.f_code.co_name if caller_frame else "Unknown"
+            )
+            filename = (
+                caller_frame.f_code.co_filename.split("/")[-1]
+                if caller_frame
+                else "Unknown"
+            )
+
+            log_message = f"[{datetime.now():%Y-%m-%d %H:%M:%S}] {filename}::{calling_function} → {current_function}"
             getattr(logger.get_logger(), level)(log_message)
 
             return func(*args, **kwargs)
+
         return wrapper
 
     return decorator if _func is None else decorator(_func)
-
