@@ -1,0 +1,15 @@
+
+[project]
+name = "logger-tools"
+version = "0.2.0"
+description = "Decorador de logging com rastreamento de função chamadora, configurable via settings"
+authors = [
+    { name="Marcelo Marcon", email="marconm.inf0@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

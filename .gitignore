@@ -1,0 +1,45 @@
+# Byte-compiled / cache / logs
+__pycache__/
+*.py[cod]
+*.log
+
+# Virtual environments
+.env/
+.venv/
+venv/
+ENV/
+env.bak/
+env/
+
+# Editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Test outputs
+.coverage
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+
+# Pylint, MyPy, etc
+.mypy_cache/
+.pyre/
+.pylint.d/
+
+# Package lock files (if using pip-tools)
+pip-wheel-metadata/
+
+# Personal dev files
+settings.py  # se for local e contiver caminhos/dados sensíveis
