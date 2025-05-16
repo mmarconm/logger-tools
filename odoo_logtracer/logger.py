@@ -3,7 +3,7 @@ import logging
 import inspect
 from datetime import datetime
 from functools import wraps
-from logger_tools import log_setup
+from odoo_logtracer import log_setup
 
 
 class Logger:

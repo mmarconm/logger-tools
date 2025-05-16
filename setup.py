@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="logger-tools",
+    name="odoo-logtracer",
     version="0.1.0",
     description="Ferramentas de logging personalizadas",
     author="Marcelo Marcon",

@@ -1,7 +1,7 @@
 
 [project]
-name = "logger-tools"
-version = "0.2.0"
+name = "odoo-logtracer"
+version = "0.2.1"
 description = "Decorador de logging com rastreamento de função chamadora, configurable via settings"
 authors = [
     { name="Marcelo Marcon", email="marconm.inf0@gmail.com" }

@@ -2,4 +2,4 @@ include README.md
 include LICENSE
 include pyproject.toml
 
-recursive-include logger_tools *.py
+recursive-include odoo_logtracer *.py
