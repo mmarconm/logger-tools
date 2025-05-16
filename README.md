@@ -1,5 +1,5 @@
-# Logger Tools 🔧  
-Um decorador reutilizável com rastreamento de chamadas, ideal para debugging e logging em projetos Python.
+# Odoo Logtracer 🔧  
+Um decorador reutilizável com rastreamento de chamadas, ideal para debugging e logging em projetos Python e módulos Odoo.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -7,11 +7,11 @@ Um decorador reutilizável com rastreamento de chamadas, ideal para debugging e 
 
 ## ✨ Descrição
 
-Logger Tools é uma biblioteca simples e reutilizável de logging em Python com:
+Odoo Logtracer é uma biblioteca simples e reutilizável de logging em Python, com foco em integração para projetos Odoo:
 
 - Decoradores que rastreiam funções chamadoras usando `inspect`
-- Log personalizável via `settings.py`
-- Estrutura modular e fácil de integrar em qualquer projeto
+- Log personalizável via `log_setup.py`
+- Estrutura modular e fácil de integrar em qualquer projeto Python ou Odoo
 - Suporte a logger singleton
 
 ---
@@ -21,14 +21,14 @@ Logger Tools é uma biblioteca simples e reutilizável de logging em Python com:
 ### Via Git
 
 ```bash
-pip install git+https://github.com/mmarconm/logger-tools.git
+pip install git+https://github.com/mmarconm/odoo-logtracer.git
 ```
 
 ### Instalação local (modo desenvolvimento)
 
 ```bash
-git clone https://github.com/mmarconm/logger-tools.git
-cd logger-tools
+git clone https://github.com/mmarconm/odoo-logtracer.git
+cd odoo-logtracer
 pip install -e .
 ```
 
@@ -36,30 +36,49 @@ pip install -e .
 
 ## ⚙️ Configuração
 
-Crie ou edite um arquivo `settings.py` com as seguintes opções:
+Edite o arquivo `odoo_logtracer/log_setup.py` com as opções desejadas:
 
 ```python
-LOG_FILE_PATH = "logs/app.log"   # Caminho do arquivo de log
-LOG_LEVEL = "INFO"               # Níveis: DEBUG, INFO, WARNING, ERROR, CRITICAL
-LOGGER_NAME = "logger_tools"     # Nome interno do logger
+LOG_FILE_PATH = "/var/log/odoo/odoo_default.log"   # Caminho do arquivo de log
+LOG_LEVEL = "INFO"                                 # Níveis: DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOGGER_NAME = "odoo_logger"                        # Nome interno do logger
 ```
 
 ---
 
-## 🚀 Como usar
+## 🚀 Como usar em projetos Odoo
+
+### Exemplo básico em Python
 
 ```python
-from logger_tools import Logger, log_function_call
+from odoo_logtracer import Logger, log_function_call
 
-# Criando o logger
 log = Logger()
 log.inspect_function("Mensagem do log")  # Loga nome da função chamadora
 
-# Usando o decorador para rastrear chamadas de função
 @log_function_call(level="info")
 def minha_funcao():
     print("Função executada")
 ```
+
+### Exemplo de uso em um módulo Odoo
+
+```python
+from odoo import models, fields, api
+from odoo_logtracer import Logger, log_function_call
+
+log = Logger()
+
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+    @log_function_call(level="info")
+    def action_confirm(self):
+        log.inspect_function("Confirmação de pedido chamada!")
+        return super().action_confirm()
+```
+
+O log será salvo no caminho definido em `log_setup.py` e incluirá rastreamento de chamadas e contexto da função.
 
 ---
 
@@ -75,32 +94,6 @@ python -m build
 Arquivos gerados ficarão em `dist/`.
 
 ---
-
-## 📁 Estrutura do Projeto
-
-```
-logger-tools/
-├── logger_tools/
-│   ├── __init__.py
-│   └── logger.py
-├── pyproject.toml
-├── settings.py         # (opcional, pode ser ignorado no .gitignore)
-├── README.md
-├── LICENSE
-├── MANIFEST.in
-```
-
----
-
-## ✅ Features futuras (roadmap)
-
-- [ ] Suporte a `loguru`
-- [ ] Suporte a configuração via `.env`
-- [ ] Integração com `colorlog` para terminal colorido
-- [ ] Logging assíncrono opcional
-
----
-
 ## 👨‍💻 Autor
 
 **Marcelo Marcon**  
