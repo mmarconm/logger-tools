@@ -3,36 +3,32 @@ import logging
 import inspect
 from datetime import datetime
 from functools import wraps
-from logger_tools import settings
+from logger_tools import log_setup
 
 
 class Logger:
     _logger = None
 
     def __init__(self, logger_name=None):
-        self.logger_name = logger_name or settings.LOGGER_NAME
+        self.logger_name = logger_name or log_setup.LOGGER_NAME
 
     def get_logger(self):
         if Logger._logger is None:
-            Logger._logger = logging.getLogger(self.logger_name)
-            Logger._logger.setLevel(
-                getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
-            )
+            Logger._logger = logging.getLogger(self.logger_name or "odoo_logger")
+            Logger._logger.setLevel(getattr(logging, log_setup.LOG_LEVEL.upper(), logging.INFO))
+            
+            Logger._logger.handlers.clear()      # remove todos os handlers existentes
+            Logger._logger.propagate = False     # bloqueia propagação pro root logger (terminal)
 
-            log_path = settings.LOG_FILE_PATH
+            log_path = log_setup.LOG_FILE_PATH
             log_dir = os.path.dirname(log_path)
-
-            # ✅ Cria diretório apenas se for fornecido
             if log_dir:
                 os.makedirs(log_dir, exist_ok=True)
 
             file_handler = logging.FileHandler(log_path, mode="a", encoding="utf-8")
             formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
             file_handler.setFormatter(formatter)
-
-            # ✅ Evita adicionar múltiplos handlers
-            if not Logger._logger.hasHandlers():
-                Logger._logger.addHandler(file_handler)
+            Logger._logger.addHandler(file_handler)
 
         return Logger._logger
 
